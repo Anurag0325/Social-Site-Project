@@ -1,10 +1,14 @@
 <template>
+  <nav class="navbar">
+            <router-link to="/" class="home-link">Home</router-link>
+        </nav>
     <div>
         <h2 class="page-title">Search Results for "{{  $route.query.q }}"</h2>
         <ul class="search-results">
             <li v-for="post in filteredPosts" :key="post.id" class="search-item">
                 <router-link :to="{ name: 'PostDetails', params: { id: post.id } }" class="post-link">{{ post.title }}</router-link>
                 <p class="post-body">{{ post.body }}</p>
+                <p v-if="post.user" class="author-name">Author: {{ post.user.name }}</p>
             </li>
             <li v-if="filteredPosts.length === 0" class="no-results">No results found.</li>
         </ul>
@@ -26,6 +30,7 @@
       const query = computed(() => route.query.q);
   
       const allPosts = computed(() => store.getters.getAllPosts);
+      const allUsers = computed(() => store.getters.getAllUsers);
   
       const filteredPosts = computed(() => {
         if (!query.value) {
@@ -33,10 +38,22 @@
         }
   
         const searchQuery = query.value.trim().toLowerCase();
-        return allPosts.value.filter(post =>
-          post.title.toLowerCase().includes(searchQuery) ||
-          post.body.toLowerCase().includes(searchQuery)
-        );
+
+
+      //   return allPosts.value.filter(post =>
+      //     post.title.toLowerCase().includes(searchQuery)
+      // )
+
+      const postsWithAuthors = allPosts.value.map(post => {
+        const user = allUsers.value.find(user => user.id === post.userId);
+        return { ...post, user };
+      });
+
+      // Filter by title or author name
+      return postsWithAuthors.filter(post =>
+        post.title.toLowerCase().includes(searchQuery) ||
+        (post.user && post.user.name.toLowerCase().includes(searchQuery))
+      );
       });
   
       return { filteredPosts };
@@ -83,5 +100,23 @@
     color: #888;
     margin-top: 10px;
   }
+
+  .navbar {
+    background-color: #f0f0f0;
+    padding: 10px;
+    border-bottom: 1px solid #ccc;
+}
+
+.home-link {
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    margin-right: 10px;
+}
+
+.home-link:hover {
+    text-decoration: underline;
+    cursor: pointer;
+}
   </style>
   

@@ -7,7 +7,10 @@
             <p>{{ post.body }}</p>
             <div class="author-info">
                 <h4>Author:</h4>
-                <p class="author-name">{{ getUser(post.userId).name }}</p>
+                <p class="author-name">
+                <router-link :to="{ name: 'UserProfile', params: { userId: post.userId } }" class="author-link">
+                    {{ getUser(post.userId).name }}
+              </router-link></p>
             </div>
             <h4>Comments:</h4>
             <ul class="comments-list">

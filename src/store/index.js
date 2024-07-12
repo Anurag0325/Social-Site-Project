@@ -26,6 +26,10 @@ const store = createStore({
                 ...comments.filter(comment => comment.postId === postId)
             ];
         },
+
+        setFilteredPosts(state, filteredPosts) {
+            state.posts = filteredPosts;
+        }
     },
 
     actions: {
@@ -47,11 +51,27 @@ const store = createStore({
             commit('addComments', { postId, comments });
         },
 
-        async searchPosts({ commit, state }, searchText) {
-            const filteredposts = state.posts.filter(post => {
-                post.title.toLowerCase().includes(searchText.toLowerCase())
-            });
-            commit('setPosts', filteredposts);
+
+
+        searchPosts({ commit, state }, { searchText, authorName }) {
+            let filteredPosts = state.posts;
+
+            if (searchText) {
+                filteredPosts = filteredPosts.filter(post =>
+                    post.title.toLowerCase().includes(searchText.toLowerCase())
+                );
+            }
+
+            if (authorName) {
+                filteredPosts = filteredPosts.filter(post => {
+                    const author = state.users.find(user =>
+                        user.name.toLowerCase().includes(authorName)
+                    );
+                    return author && post.userId === author.id;
+                });
+            }
+
+            commit('setFilteredPosts', filteredPosts);
         }
     },
 
